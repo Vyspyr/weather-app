@@ -1,18 +1,23 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-
+import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
+const Home = () => <h1>Home Page </h1>
+const About = () => <h1>About</h1>
 const App = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-900">
-      <header className="text-3xl font-bold mb-4">Welcome to My Website</header>
-      <p className="text-lg">This is a simple website using React and HTML.</p>
-      <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600">
-        Click Me
-      </button>
-    </div>
+    <Router>
+      <nav>
+        <Link to="/">Home</Link> | <Link to="/about">About</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
   );
 };
 
 const root = createRoot(document.getElementById("root"));
 root.render(<App />);
 
+export default App;
