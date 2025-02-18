@@ -1,5 +1,5 @@
 {
-  "homepage": "https://your-username.github.io/weather-app",
+  "homepage": "https://Vyspyr.github.io/weather-app",
   "scripts": {
   "predeploy": "npm run build",
   "deploy": "gh-pages -d build"},
