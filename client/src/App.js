@@ -1,116 +1,89 @@
 import React, { useState, useEffect, useRef } from "react";
+import { starryNight } from "./backgroundAnimations"; // Ensure this file exists
 import "./App.css";
 
 const App = () => {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
-  const [unit, setUnit] = useState("metric"); // 'metric' for °C & km/h, 'imperial' for °F & mph
+  const [error, setError] = useState(null);
   const canvasRef = useRef(null);
 
-  // Fetch weather data from your own backend
-  const fetchWeather = async () => {
-    if (!city) return;
-
-    try {
-      const response = await fetch(`http://localhost:5000/weather?city=${city}`);
-      const data = await response.json();
-      setWeather(data);
-    } catch (error) {
-      console.error("Error fetching weather data:", error);
-      setWeather(null);
-    }
-  };
-
-  // Handle unit conversion
-  const getTemperature = () => {
-    if (!weather) return "";
-    return unit === "metric"
-      ? `${weather.current.temp_c}°C`
-      : `${weather.current.temp_f}°F`;
-  };
-
-  const getWindSpeed = () => {
-    if (!weather) return "";
-    return unit === "metric"
-      ? `${weather.current.wind_kph} km/h`
-      : `${weather.current.wind_mph} mph`;
-  };
-
-  // Background Animation (Starry Night)
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
-    const animateBackground = () => {
-      ctx.fillStyle = "rgba(15, 23, 42, 0.1)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 🔹 Function to resize the canvas dynamically
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth * 2;
+      canvas.height = window.innerHeight * 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Ensure canvas redraws
     };
 
-    const animationFrame = setInterval(animateBackground, 1000 / 60);
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener("resize", handleResize);
+    // Set initial size & start animation
+    resizeCanvas();
+    const animateBackground = starryNight(canvas, ctx);
+    const animationFrame = setInterval(animateBackground, 1000/60);
+
+    // Listen for window resize & adjust canvas dynamically
+    window.addEventListener("resize", resizeCanvas);
 
     return () => {
       clearInterval(animationFrame);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resizeCanvas);
     };
   }, []);
+
+  const fetchWeather = async () => {
+    if (!city) {
+      alert("Please enter a city!");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/weather?city=${city}`);
+      if (!response.ok) throw new Error("City not found");
+
+      const data = await response.json();
+      if (!data || !data.location || !data.current) {
+        throw new Error("Invalid API response");
+      }
+
+      setWeather(data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+      setError("Failed to fetch weather data.");
+      setWeather(null);
+    }
+  };
 
   return (
     <div className="app-container">
       <canvas ref={canvasRef} id="backgroundCanvas"></canvas>
       <div className="content">
-        <h1 className="title">Weather App</h1>
-        <p className="subtitle">Enter a city to check the weather.</p>
+        <h1>Weather App</h1>
+        <p>Enter a city to check the weather:</p>
+        <input
+          type="text"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter city name"
+          className="search-input"
+        />
+        <button onClick={fetchWeather} className="search-button">
+          Get Weather
+        </button>
 
-        <div className="input-container">
-          <input
-            type="text"
-            placeholder="Enter city name..."
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="input-field"
-          />
-          <button onClick={fetchWeather} className="search-button">
-            Get Weather
-          </button>
-        </div>
+        {error && <p className="error">{error}</p>}
 
-        {/* Unit Selection */}
-        <div className="unit-toggle">
-          <label>
-            <input
-              type="radio"
-              value="metric"
-              checked={unit === "metric"}
-              onChange={() => setUnit("metric")}
-            />
-            °C & km/h
-          </label>
-          <label>
-            <input
-              type="radio"
-              value="imperial"
-              checked={unit === "imperial"}
-              onChange={() => setUnit("imperial")}
-            />
-            °F & mph
-          </label>
-        </div>
-
-        {/* Display Weather Data */}
-        {weather && (
-          <div className="weather-card">
+        {weather && weather.location && weather.current && (
+          <div className="weather-container">
             <h2>{weather.location.name}, {weather.location.country}</h2>
-            <p>Temperature: {getTemperature()}</p>
-            <p>Condition: {weather.current.condition.text}</p>
-            <p>Wind Speed: {getWindSpeed()}</p>
-            <img src={weather.current.condition.icon} alt="Weather Icon" />
+            <p>{weather.current.condition.text}</p>
+            <p>Temperature: {weather.current.temp_c}°C / {weather.current.temp_f}°F</p>
+            <p>Humidity: {weather.current.humidity}%</p>
+            <p>Wind: {weather.current.wind_kph} km/h ({weather.current.wind_mph} mph)</p>
+            <img src={weather.current.condition.icon} alt={weather.current.condition.text} />
           </div>
         )}
       </div>
