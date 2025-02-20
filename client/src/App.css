@@ -20,8 +20,8 @@ body, html {
   display: block;
   top: 0;
   left: 0;
-  width: 100%;  /* Full viewport width */
-  height: 100%; /* Full viewport height */
+  width: 0;  /* Full viewport width */
+  height: 0; /* Full viewport height */
   z-index: -1; /* Keeps it behind other elements */
 }
 
