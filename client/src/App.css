@@ -15,11 +15,13 @@ body, html {
 
 /* Starry Night Canvas */
 #backgroundCanvas {
-  position: fixed;
+  justify-content: center;
+  align-items: center;
+  display: block;
   top: 0;
   left: 0;
-  width: 100vw;  /* Full viewport width */
-  height: 100vh; /* Full viewport height */
+  width: 100%;  /* Full viewport width */
+  height: 100%; /* Full viewport height */
   z-index: -1; /* Keeps it behind other elements */
 }
 

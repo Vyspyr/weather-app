@@ -14,17 +14,18 @@ const App = () => {
 
     // 🔹 Function to resize the canvas dynamically
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth * 2;
-      canvas.height = window.innerHeight * 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Ensure canvas redraws
+      const { innerWidth, innerHeight } = window;
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      ctx.clearRect(0, 0, innerWidth, innerHeight); // Prevents leftover drawings
     };
 
-    // Set initial size & start animation
+    // 🔹 Set initial size & start animation
     resizeCanvas();
     const animateBackground = starryNight(canvas, ctx);
-    const animationFrame = setInterval(animateBackground, 1000/60);
+    const animationFrame = setInterval(animateBackground, 1000 / 60);
 
-    // Listen for window resize & adjust canvas dynamically
+    // 🔹 Ensure the canvas resizes dynamically on window changes
     window.addEventListener("resize", resizeCanvas);
 
     return () => {
@@ -33,33 +34,12 @@ const App = () => {
     };
   }, []);
 
-  const fetchWeather = async () => {
-    if (!city) {
-      alert("Please enter a city!");
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:5000/weather?city=${city}`);
-      if (!response.ok) throw new Error("City not found");
-
-      const data = await response.json();
-      if (!data || !data.location || !data.current) {
-        throw new Error("Invalid API response");
-      }
-
-      setWeather(data);
-      setError(null);
-    } catch (error) {
-      console.error("Error fetching weather:", error);
-      setError("Failed to fetch weather data.");
-      setWeather(null);
-    }
-  };
-
   return (
     <div className="app-container">
+      {/* Starry night background */}
       <canvas ref={canvasRef} id="backgroundCanvas"></canvas>
+
+      {/* Main content */}
       <div className="content">
         <h1>Weather App</h1>
         <p>Enter a city to check the weather:</p>
@@ -70,7 +50,7 @@ const App = () => {
           placeholder="Enter city name"
           className="search-input"
         />
-        <button onClick={fetchWeather} className="search-button">
+        <button onClick={() => console.log("Fetching Weather")} className="search-button">
           Get Weather
         </button>
 
