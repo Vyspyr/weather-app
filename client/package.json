@@ -9,10 +9,6 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.9",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
     "framer-motion": "^12.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -23,12 +19,10 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "start": "concurrently \"npm run start-server\" \"npm run start-client\"",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "start-server": "node server/server.js",
-    "start-client": "npm start --prefix client"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -49,7 +43,6 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
     "gh-pages": "^6.3.0"
   }
 }
