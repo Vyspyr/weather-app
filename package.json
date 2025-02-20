@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start-server": "nodemon server/server.js",
-    "start-client": "npm start --prefix client",
-    "start": "concurrently \"npm run start-server\" \"npm run start-client\"",
+    "start-server": "cd server && npm run dev",
+  "start-client": "cd client && npm start",
+  "start": "concurrently \"npm run start-server\" \"npm run start-client\"",
     "build": "npm run build --prefix client",
     "deploy": "gh-pages -d client/build"
   },

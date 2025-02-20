@@ -1,72 +1,69 @@
-import React, { useState, useEffect, useRef } from "react";
-import { starryNight } from "./backgroundAnimations"; // Ensure this file exists
+import React, { useState } from "react";
 import "./App.css";
 
 const App = () => {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
-  const canvasRef = useRef(null);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+  const fetchWeather = async () => {
+    if (!city) {
+      alert("Please enter a city!");
+      return;
+    }
 
-    // 🔹 Function to resize the canvas dynamically
-    const resizeCanvas = () => {
-      const { innerWidth, innerHeight } = window;
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      ctx.clearRect(0, 0, innerWidth, innerHeight); // Prevents leftover drawings
-    };
+    try {
+      console.log(`Fetching weather for: ${city}`); // Debugging log
 
-    // 🔹 Set initial size & start animation
-    resizeCanvas();
-    const animateBackground = starryNight(canvas, ctx);
-    const animationFrame = setInterval(animateBackground, 1000 / 60);
+      const response = await fetch(`http://localhost:5000/weather?city=${city}`);
 
-    // 🔹 Ensure the canvas resizes dynamically on window changes
-    window.addEventListener("resize", resizeCanvas);
+      if (!response.ok) {
+        throw new Error("City not found");
+      }
 
-    return () => {
-      clearInterval(animationFrame);
-      window.removeEventListener("resize", resizeCanvas);
-    };
-  }, []);
+      const data = await response.json();
+
+      if (!data || !data.location || !data.current) {
+        throw new Error("Invalid API response");
+      }
+
+      console.log("Weather Data:", data); // Debugging log
+      setWeather(data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+      setError("Failed to fetch weather data.");
+      setWeather(null);
+    }
+  };
 
   return (
     <div className="app-container">
-      {/* Starry night background */}
-      <canvas ref={canvasRef} id="backgroundCanvas"></canvas>
+      <h1>Todays Forecast</h1>
+      <p>Enter a city to check the weather:</p>
+      <input
+        type="text"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        placeholder="Enter city name"
+        className="search-input"
+      />
+      <button onClick={fetchWeather} className="search-button">
+        Get Weather
+      </button>
 
-      {/* Main content */}
-      <div className="content">
-        <h1>Weather App</h1>
-        <p>Enter a city to check the weather:</p>
-        <input
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Enter city name"
-          className="search-input"
-        />
-        <button onClick={() => console.log("Fetching Weather")} className="search-button">
-          Get Weather
-        </button>
+      {error && <p className="error">{error}</p>}
 
-        {error && <p className="error">{error}</p>}
-
-        {weather && weather.location && weather.current && (
-          <div className="weather-container">
-            <h2>{weather.location.name}, {weather.location.country}</h2>
-            <p>{weather.current.condition.text}</p>
-            <p>Temperature: {weather.current.temp_c}°C / {weather.current.temp_f}°F</p>
-            <p>Humidity: {weather.current.humidity}%</p>
-            <p>Wind: {weather.current.wind_kph} km/h ({weather.current.wind_mph} mph)</p>
-            <img src={weather.current.condition.icon} alt={weather.current.condition.text} />
-          </div>
-        )}
-      </div>
+      {weather && weather.location && weather.current && (
+        <div className="weather-container">
+          <h2>{weather.location.name}, {weather.location.country}</h2>
+          <p>{weather.current.condition.text}</p>
+          <p>Temperature: {weather.current.temp_c}°C / {weather.current.temp_f}°F</p>
+          <p>Humidity: {weather.current.humidity}%</p>
+          <p>Wind: {weather.current.wind_kph} km/h ({weather.current.wind_mph} mph)</p>
+          <img src={weather.current.condition.icon} alt={weather.current.condition.text} />
+        </div>
+      )}
     </div>
   );
 };
