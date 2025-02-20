@@ -24,3 +24,5 @@ yarn-error.log*
 
 #keys
 server/.env
+client/.env
+.env
